@@ -1,0 +1,368 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  email             String            @unique
+  password          String
+  avatar            String?
+  created_at        DateTime          @default(now())
+  email_verified_at DateTime?
+  name              String
+  otp               String?
+  otp_expiration    DateTime?
+  phone             String?
+  provider          String?
+  provider_id       String?
+  remember_token    String?
+  reset_token       String?
+  updated_at        DateTime          @updatedAt
+  id                Int               @id @default(autoincrement())
+  role              user_role         @default(user)
+  status            active_status     @default(active)
+  last_login_at     DateTime?
+  otps              OTP[]
+  carts             Cart[]
+  financial_profile FinancialProfile?
+  resale_tickets    ResaleTicket[]
+  sessions          sessions[]
+  reviews           Review[]
+  favorites         Favorite[]
+  orders            Order[]
+}
+
+model OTP {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String
+  code       Int
+  type       OTPType
+  expiresAt  DateTime
+  verified   Boolean  @default(false)
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int?
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([identifier, type, verified])
+  @@index([expiresAt])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model password_reset_tokens {
+  email      String    @id
+  token      String
+  created_at DateTime?
+}
+
+model sessions {
+  id            String  @id
+  user_id       Int?
+  ip_address    String?
+  user_agent    String?
+  payload       String
+  last_activity Int
+  user          User?   @relation(fields: [user_id], references: [id])
+}
+
+model cache {
+  key        String @id
+  value      String
+  expiration Int
+}
+
+model cache_locks {
+  key        String @id
+  owner      String
+  expiration Int
+}
+
+model ResaleTicket {
+  id                   Int              @id @default(autoincrement())
+  user_id              Int
+  financial_profile_id Int
+  event_id             String?
+  ticketmaster_id      String?
+  title                String?
+  venue                String?
+  artist               String?
+  category             String?
+  start_date           DateTime?        @db.Date
+  end_date             DateTime?        @db.Date
+  time                 DateTime?        @db.Time(6)
+  quantity             Int              @default(0)
+  reserved_quantity    Int              @default(0)
+  sold_quantity        Int              @default(0)
+  original_price       Decimal          @db.Decimal(10, 2)
+  price                Decimal          @db.Decimal(10, 2)
+  ticket_type          String           @default("Regular")
+  seat_info            String?
+  additional_info      String?
+  ticket_file          String?
+  status               ticket_status    @default(pending)
+  admin_notes          String?
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @updatedAt
+  cartItems            CartItem[]
+  financial_profile    FinancialProfile @relation(fields: [financial_profile_id], references: [id], onDelete: Cascade)
+  user                 User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("resale_tickets")
+}
+
+/// *
+///  * =====================FinancialProfile============
+model FinancialProfile {
+  id                   Int            @id @default(autoincrement())
+  user_id              Int            @unique
+  country_of_residence String
+  address              String
+  city                 String
+  postal_code          String
+  dob                  DateTime?      @db.Date
+  bank_country         String
+  account_holder_name  String
+  phone_number         String
+  bank_account_number  String
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+  user                 User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  resale_tickets       ResaleTicket[]
+
+  @@map("financial_profiles")
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int?
+  sessionId String?    @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cartItems CartItem[]
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("carts")
+}
+
+model CartItem {
+  id             Int          @id @default(autoincrement())
+  cartId         Int
+  resaleTicketId Int
+  quantity       Int          @default(1)
+  price          Decimal      @db.Decimal(10, 2)
+  totalPrice     Decimal      @db.Decimal(12, 2)
+  reservedUntil  DateTime?
+  isPurchased    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  cart           Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  resaleTicket   ResaleTicket @relation(fields: [resaleTicketId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  rating     Int
+  comment    String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+
+model jobs {
+  id           Int    @id @default(autoincrement())
+  queue        String
+  payload      String
+  attempts     Int
+  reserved_at  Int?
+  available_at Int
+  created_at   Int
+}
+
+model job_batches {
+  id             String  @id
+  name           String
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String
+  options        String?
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model failed_jobs {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique
+  connection String
+  queue      String
+  payload    String
+  exception  String
+  failed_at  DateTime @default(now())
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum AccountStatus {
+  active
+  inactive
+  suspended
+  pending_verification
+}
+
+enum OTPType {
+  email_verification
+  login_verification
+  password_reset
+  two_factor
+}
+
+enum user_role {
+  user
+  admin
+}
+
+enum active_status {
+  active
+  inactive
+}
+
+enum review_status {
+  interest
+  going
+}
+
+enum payment_status {
+  pending
+  paid
+  failed
+}
+
+enum coupon_type {
+  fixed
+  percent
+}
+
+enum ticket_status {
+  pending
+  approved
+  rejected
+}
+
+
+model Contact {
+  id           Int       @id @default(autoincrement())
+
+  first_name   String
+  last_name    String?
+  company_name String?
+  company_type String?
+  region       String?
+
+  email        String
+  phone        String?
+  message      String?
+
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  // Soft delete replacement
+  deleted_at   DateTime?
+  @@map("contacts")
+}
+
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  type      FaqType
+  question  String?
+  answer    String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+enum FaqType {
+  help
+  message
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+
+  user_id    Int      @map("user_id")
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  event_id   String?  @map("event_id")
+
+  status    FavoriteStatus
+
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @updatedAt @map("updated_at")
+
+  @@map("favorites")
+}
+
+enum FavoriteStatus {
+  interest
+  going
+}
+
+model Coupon {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  type      coupon_type
+  value     Decimal  @db.Decimal(10, 2)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  orders    Order[]
+
+  @@map("coupons")
+}
+
+model Order {
+  id               Int      @id @default(autoincrement())
+
+  user_id          Int
+  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  order_number     String   @unique
+
+  subtotal         Decimal  @db.Decimal(10, 2)
+  discount         Decimal  @default(0) @db.Decimal(10, 2)
+  total            Decimal  @db.Decimal(10, 2)
+
+  coupon_id        Int?
+  coupon           Coupon?  @relation(fields: [coupon_id], references: [id], onDelete: SetNull)
+
+  payment_method   String?
+
+  payment_status   payment_status @default(pending)
+
+  razorpay_order_id String?
+  transaction_id    String?
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@map("orders")
+}
+

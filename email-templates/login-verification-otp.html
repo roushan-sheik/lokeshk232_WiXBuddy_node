@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Verification</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 40px 30px; }
+        .code-container { text-align: center; margin: 30px 0; }
+        .code { font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #10b981; 
+                padding: 20px; border: 3px dashed #10b981; border-radius: 10px; 
+                background-color: #f0fdf4; display: inline-block; }
+        .info { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0; }
+        .warning { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #6c757d; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔑 Login Verification</h1>
+            <p>Secure access to your account</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello,</p>
+            <p>Someone is trying to log in to your account from <strong>{{email}}</strong>. Please use this verification code:</p>
+            
+            <div class="code-container">
+                <div class="code">{{code}}</div>
+            </div>
+            
+            <div class="info">
+                <strong>⏰ This code expires in {{expiryMinutes}} minutes</strong>
+            </div>
+            
+            <div class="warning">
+                <strong>🚨 Security Alert:</strong> If you didn't attempt to log in, please secure your account immediately.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

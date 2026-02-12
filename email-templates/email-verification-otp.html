@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 40px 30px; }
+        .code-container { text-align: center; margin: 30px 0; }
+        .code { font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #667eea; 
+                padding: 20px; border: 3px dashed #667eea; border-radius: 10px; 
+                background-color: #f8f9ff; display: inline-block; }
+        .info { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0; }
+        .warning { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #6c757d; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Email Verification</h1>
+            <p>Please verify your email address to continue</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello,</p>
+            <p>We received a request to verify your email address <strong>{{email}}</strong>. Please use the verification code below:</p>
+            
+            <div class="code-container">
+                <div class="code">{{code}}</div>
+            </div>
+            
+            <div class="info">
+                <strong>⏰ This code expires in {{expiryMinutes}} minutes</strong>
+            </div>
+            
+            <div class="warning">
+                <strong>🚨 Security Notice:</strong> Never share this code with anyone. Our team will never ask for your verification code.
+            </div>
+            
+            <p>If you didn't request this verification, please ignore this email.</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>
