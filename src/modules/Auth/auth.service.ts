@@ -31,6 +31,7 @@ import {
   User,
   UserRole,
 } from "@/generated/prisma/client";
+import { S3StorageService } from "@/services/S3StorageService";
 
 export interface AuthResponse {
   status: boolean;
@@ -94,6 +95,22 @@ export class AuthService extends BaseService<User> {
     // Hash password
     const hashedPassword = await this.hashPassword(password);
     const now = new Date();
+
+
+    // Generate token
+    let avatarUrl: string | null = null;
+    
+    // Upload avatar if exists
+    if (data.avatarFile) {
+      try {
+        const s3Service = new S3StorageService();
+        avatarUrl = await s3Service.uploadFile(data.avatarFile, "avatars");
+      } catch (error) {
+        AppLogger.error("Failed to upload avatar during registration", { error });
+        // Proceed without avatar if upload fails, or throw error based on requirement
+      }
+    }
+
     // Create user with pending verification status
     const user = await this.create({
       email,
@@ -103,6 +120,7 @@ export class AuthService extends BaseService<User> {
       updated_at: now,
       created_at: now,
       role,
+      avatar: avatarUrl,
     });
 
     // Generate token

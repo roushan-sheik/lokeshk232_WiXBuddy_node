@@ -19,7 +19,14 @@ export class AuthController extends BaseController {
     this.logAction('register', req, { email: body.email, role: body.role });
     console.log;
     ({ body });
-    const result = await this.authService.register(body);
+    ({ body });
+    // Add file to body if it exists
+    const registerData = {
+      ...body,
+      avatarFile: req.file,
+    };
+    
+    const result = await this.authService.register(registerData);
 
     return this.sendCreatedResponse(res, result, 'User registered successfully');
   };

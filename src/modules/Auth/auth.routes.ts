@@ -23,7 +23,7 @@ export class AuthRoutes {
     // Register new user
     this.router.post(
       '/register',
-      upload.none(),
+      upload.single('avatar'),
       validateRequest({
         body: AuthValidation.register,
       }),

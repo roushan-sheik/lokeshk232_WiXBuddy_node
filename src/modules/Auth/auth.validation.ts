@@ -167,7 +167,7 @@ export const AuthValidation = {
   },
 };
 
-export type RegisterInput = z.infer<typeof AuthValidation.register>;
+export type RegisterInput = z.infer<typeof AuthValidation.register> & { avatarFile?: Express.Multer.File };
 export type LoginInput = z.infer<typeof AuthValidation.login>;
 export type VerifyEmailInput = z.infer<typeof AuthValidation.verifyEmail>;
 export type ResendEmailVerificationInput = z.infer<typeof AuthValidation.resendEmailVerification>;
