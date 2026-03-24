@@ -9,8 +9,10 @@ import {
 } from "./AppError";
 import { AppLogger } from "../logging/logger";
 import { HTTPStatusCode } from "@/types/HTTPStatusCode";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
-import { PrismaClientUnknownRequestError } from "@/generated/prisma/internal/prismaNamespace";
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+} from "@/generated/prisma/internal/prismaNamespace";
 
 interface ErrorResponse {
   success: false;
