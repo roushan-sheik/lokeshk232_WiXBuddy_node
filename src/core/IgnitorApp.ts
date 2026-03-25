@@ -1,4 +1,5 @@
 import { AppLogger } from "@/core/logging/logger";
+import chalk from "chalk";
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -303,7 +304,9 @@ export class IgnitorApp {
       AppLogger.info("🙭 Starting server...");
       const server = this.app.listen(port, () => {
         AppLogger.info(
-          `🗲 Ignitor Server running on port ${port} in ${config.server.env} mode`,
+          chalk.bold.cyan(
+            `🗲 Application is running on port http://localhost:${port}`,
+          ),
         );
       });
 
