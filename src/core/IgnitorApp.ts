@@ -114,6 +114,27 @@ export class IgnitorApp {
       );
     }
 
+    // Home route
+    this.app.get(
+      "/",
+      asyncHandler(async (_: Request, res: Response) => {
+        res.status(200).json({
+          success: true,
+          message: "Welcome to WiXBuddy API",
+          version: process.env.npm_package_version || "1.0.0",
+          documentation: "/api/docs",
+          endpoints: {
+            health: "/health",
+            auth: "/api/v1/auth",
+            events: "/api/v1/events",
+            tickets: "/api/v1/tickets",
+            cart: "/api/v1/cart",
+            checkout: "/api/v1/checkout",
+          },
+        });
+      }),
+    );
+
     // Health check endpoint
     this.app.get(
       "/health",
