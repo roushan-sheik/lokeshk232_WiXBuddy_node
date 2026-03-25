@@ -291,6 +291,8 @@ export class IgnitorApp {
     try {
       await this.context.initialize();
 
+      AppLogger.info("🗄 Database connected");
+
       await this.initializeModules();
 
       await this.registerModuleRoutes();
@@ -302,6 +304,9 @@ export class IgnitorApp {
       this.app.use(errorHandler());
 
       AppLogger.info("🙭 Starting server...");
+
+      AppLogger.info("📡 Before listen log");
+
       const server = this.app.listen(port, () => {
         AppLogger.info(
           chalk.bold.cyan(
