@@ -139,57 +139,57 @@ export class IgnitorApp {
     this.app.get(
       "/health",
       asyncHandler(async (_: Request, res: Response) => {
+        let dbStatus = "healthy";
+
         try {
           // Check database connection
           await this.context.prisma.$queryRaw`SELECT 1`;
-
-          // Uptime conversion function
-          const formatUptime = (seconds: number) => {
-            const days = Math.floor(seconds / (3600 * 24));
-            seconds %= 3600 * 24;
-            const hours = Math.floor(seconds / 3600);
-            seconds %= 3600;
-            const minutes = Math.floor(seconds / 60);
-            seconds = Math.floor(seconds % 60);
-            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-          };
-
-          // Memory formatting
-          const formatMemory = (bytes: number) =>
-            `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-
-          // CPU usage formatting
-          const formatCPU = (cpuUsage: NodeJS.CpuUsage) =>
-            `User: ${(cpuUsage.user / 1000).toFixed(2)}ms, System: ${(
-              cpuUsage.system / 1000
-            ).toFixed(2)}ms`;
-
-          const uptimeSeconds = process.uptime();
-          const healthData = {
-            status: "healthy",
-            timestamp: new Date().toISOString(),
-            uptime: formatUptime(uptimeSeconds),
-            environment: config.server.env,
-            version: process.env.npm_package_version || "1.0.0",
-            memoryUsage: {
-              rss: formatMemory(process.memoryUsage().rss),
-              heapTotal: formatMemory(process.memoryUsage().heapTotal),
-              heapUsed: formatMemory(process.memoryUsage().heapUsed),
-              external: formatMemory(process.memoryUsage().external),
-              arrayBuffers: formatMemory(process.memoryUsage().arrayBuffers),
-            },
-            cpuUsage: formatCPU(process.cpuUsage()),
-          };
-
-          res.status(200).json(healthData);
         } catch (error) {
-          throw new AppError(
-            HTTPStatusCode.SERVICE_UNAVAILABLE,
-            "Service unhealthy",
-            "SERVICE_UNAVAILABLE",
-            { reason: "Database connection failed" },
-          );
+          dbStatus = "unhealthy";
         }
+
+        // Uptime conversion function
+        const formatUptime = (seconds: number) => {
+          const days = Math.floor(seconds / (3600 * 24));
+          seconds %= 3600 * 24;
+          const hours = Math.floor(seconds / 3600);
+          seconds %= 3600;
+          const minutes = Math.floor(seconds / 60);
+          seconds = Math.floor(seconds % 60);
+          return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        };
+
+        // Memory formatting
+        const formatMemory = (bytes: number) =>
+          `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+
+        // CPU usage formatting
+        const formatCPU = (cpuUsage: NodeJS.CpuUsage) =>
+          `User: ${(cpuUsage.user / 1000).toFixed(2)}ms, System: ${(
+            cpuUsage.system / 1000
+          ).toFixed(2)}ms`;
+
+        const uptimeSeconds = process.uptime();
+        const healthData = {
+          status: dbStatus === "healthy" ? "healthy" : "degraded",
+          timestamp: new Date().toISOString(),
+          uptime: formatUptime(uptimeSeconds),
+          environment: config.server.env,
+          version: process.env.npm_package_version || "1.0.0",
+          services: {
+            database: dbStatus,
+          },
+          memoryUsage: {
+            rss: formatMemory(process.memoryUsage().rss),
+            heapTotal: formatMemory(process.memoryUsage().heapTotal),
+            heapUsed: formatMemory(process.memoryUsage().heapUsed),
+            external: formatMemory(process.memoryUsage().external),
+            arrayBuffers: formatMemory(process.memoryUsage().arrayBuffers),
+          },
+          cpuUsage: formatCPU(process.cpuUsage()),
+        };
+
+        res.status(dbStatus === "healthy" ? 200 : 200).json(healthData);
       }),
     );
   }
