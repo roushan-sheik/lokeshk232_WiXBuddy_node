@@ -348,6 +348,47 @@ export class AuthService extends BaseService<User> {
   }
 
   /**
+   * Resend reset password OTP
+   */
+  async resendResetPasswordOTP(
+    data: ForgotPasswordInput,
+  ): Promise<{ message: string }> {
+    const { email } = data;
+
+    const user = await this.findOne({ email });
+    if (!user || user.status !== AccountStatus.active) {
+      return {
+        message:
+          "If an account with this email exists, you will receive a password reset code.",
+      };
+    }
+
+    try {
+      await this.otpService.sendOTP({
+        identifier: email,
+        type: OTPType.password_reset,
+        userId: user.id,
+      });
+
+      AppLogger.info("Password reset OTP resent", {
+        userId: user.id,
+        email: user.email,
+      });
+    } catch (error) {
+      AppLogger.error("Failed to resend password reset OTP", {
+        userId: user.id,
+        email: user.email,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+
+    return {
+      message:
+        "If an account with this email exists, you will receive a password reset code.",
+    };
+  }
+
+  /**
    * Change user password
    */
   async changePassword(

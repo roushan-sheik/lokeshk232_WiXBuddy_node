@@ -80,6 +80,28 @@ export class AuthRoutes {
       )
     );
 
+    // Verify OTP (alias for verify-reset-password-OTP)
+    this.router.post(
+      '/verify-otp',
+      validateRequest({
+        body: AuthValidation.verifyResetPasswordOTPInput,
+      }),
+      asyncHandler((req: Request, res: Response) =>
+        this.authController.verifyResetPasswordOTP(req, res)
+      )
+    );
+
+    // Resend OTP for password reset
+    this.router.post(
+      '/resend-otp',
+      validateRequest({
+        body: AuthValidation.forgotPassword,
+      }),
+      asyncHandler((req: Request, res: Response) =>
+        this.authController.resendResetPasswordOTP(req, res)
+      )
+    );
+
     // Reset password
     this.router.post(
       '/reset-password',

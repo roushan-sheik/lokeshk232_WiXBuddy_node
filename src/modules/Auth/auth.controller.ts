@@ -305,4 +305,17 @@ export class AuthController extends BaseController {
 
     return this.sendResponse(res, 'Password reset successfully', HTTPStatusCode.OK, result);
   };
+
+  /**
+   * Resend OTP for password reset
+   * POST /api/auth/resend-otp
+   */
+  public resendResetPasswordOTP = async (req: Request, res: Response) => {
+    const body = req.validatedBody || req.body;
+    this.logAction('resendResetPasswordOTP', req, { email: body.email });
+
+    const result = await this.authService.resendResetPasswordOTP(body);
+
+    return this.sendResponse(res, 'Password reset OTP sent', HTTPStatusCode.OK, result);
+  };
 }
