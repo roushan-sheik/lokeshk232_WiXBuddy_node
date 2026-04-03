@@ -29,6 +29,7 @@ type TransactionCallback<T> = (
 export abstract class BaseService<
   TModel = any,
   TCreateInput = any,
+// --- TEMPLATES ---
   TUpdateInput = any,
 > {
   protected prisma: PrismaClient;

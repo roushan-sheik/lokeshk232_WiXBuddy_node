@@ -5,6 +5,7 @@ import { validateRequest } from "@/middleware/validation";
 import { asyncHandler } from "@/middleware/asyncHandler";
 import multer from "multer";
 const upload = multer();
+
 export class ContactRoutes {
   private router: Router;
   private controller: ContactController;
